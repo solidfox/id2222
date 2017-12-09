@@ -1,6 +1,7 @@
 package se.kth.jabeja;
 
 import org.apache.log4j.Logger;
+import se.kth.jabeja.annealing.AnnealingStrategy;
 import se.kth.jabeja.config.Config;
 import se.kth.jabeja.config.NodeSelectionPolicy;
 import se.kth.jabeja.io.FileIO;
@@ -17,7 +18,7 @@ public class Jabeja {
   private final List<Integer> nodeIds;
   private int numberOfSwaps;
   private int round;
-  private float temperature;
+  private AnnealingStrategy annealingMethod;
   private boolean resultFileCreated = false;
 
   //-------------------------------------------------------------------
@@ -27,7 +28,8 @@ public class Jabeja {
     this.round = 0;
     this.numberOfSwaps = 0;
     this.config = config;
-    this.temperature = config.getTemperature();
+    this.annealingMethod = config.getAnnealingMethod()
+            .getStrategy(config.getTemperature(), config.getAnnealingSpeed());
   }
 
 
@@ -42,6 +44,7 @@ public class Jabeja {
       //one cycle for all nodes have completed.
       //reduce the temperature
       saCoolDown();
+      System.out.println(annealingMethod.getTemperature());
       report();
     }
   }
@@ -51,10 +54,7 @@ public class Jabeja {
    */
   private void saCoolDown(){
     // TODO for second task
-    if (temperature > 1)
-      temperature -= config.getDelta();
-    if (temperature < 1)
-      temperature = 1;
+    annealingMethod.anneal();
   }
 
   /**
@@ -99,7 +99,7 @@ public class Jabeja {
       Node partnerNode = entireGraph.get(nodes[i]);
       int currentBenefit = getBenefit(nodep) + getBenefit(partnerNode);
       int swappedBenefit = getBenefit(nodep, partnerNode.getColor()) + getBenefit(partnerNode, nodep.getColor());
-      if (swappedBenefit > highestBenefit && swappedBenefit * temperature > currentBenefit) {
+      if (swappedBenefit > highestBenefit && annealingMethod.accept(currentBenefit, swappedBenefit)) {
         bestPartner = Optional.of(partnerNode);
         highestBenefit = swappedBenefit;
       }
@@ -242,10 +242,11 @@ public class Jabeja {
     outputFilePath = config.getOutputDir() +
             File.separator +
             inputFile.getName() + "_" +
+            "ANNEAL" + "_" + config.getAnnealingMethod() + "_" +
             "NS" + "_" + config.getNodeSelectionPolicy() + "_" +
             "GICP" + "_" + config.getGraphInitialColorPolicy() + "_" +
             "temperature" + "_" + config.getTemperature() + "_" +
-            "D" + "_" + config.getDelta() + "_" +
+            "D" + "_" + config.getAnnealingSpeed() + "_" +
             "RNSS" + "_" + config.getRandomNeighborSampleSize() + "_" +
             "URSS" + "_" + config.getUniformRandomSampleSize() + "_" +
             "A" + "_" + config.getAlpha() + "_" +

@@ -3,6 +3,7 @@ package se.kth.jabeja.io;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import se.kth.jabeja.annealing.AnnealingMethod;
 import se.kth.jabeja.config.Config;
 import se.kth.jabeja.config.GraphInitColorPolicy;
 import se.kth.jabeja.config.NodeSelectionPolicy;
@@ -31,8 +32,12 @@ public class CLI {
   @Option(name = "-temp", usage = "Simulated annealing temperature.")
   private float TEMPERATURE = 2;
 
-  @Option(name = "-delta", usage = "Simulated annealing delta.")
-  private float DELTA = (float) 0.003;
+  @Option(name = "-annealing-speed", usage = "Simulated annealing speed.")
+  private float ANNEALINGSPEED = (float) 0.003;
+
+  @Option(name = "-annealing", usage = "Simulated annealing method.")
+  private String ANNEALING = "LINEAR";
+  private AnnealingMethod annealingMethod = AnnealingMethod.LINEAR;
 
   @Option(name = "-seed", usage = "Seed.")
   private int SEED = 0;
@@ -75,6 +80,7 @@ public class CLI {
 
       if (NODE_SELECTION_POLICY.compareToIgnoreCase(NodeSelectionPolicy.RANDOM.toString()) == 0) {
         nodeSelectionPolicy = NodeSelectionPolicy.RANDOM;
+        nodeSelectionPolicy = NodeSelectionPolicy.RANDOM;
       } else if (NODE_SELECTION_POLICY.compareToIgnoreCase(NodeSelectionPolicy.LOCAL.toString()) == 0) {
         nodeSelectionPolicy = NodeSelectionPolicy.LOCAL;
       } else if (NODE_SELECTION_POLICY.compareToIgnoreCase(NodeSelectionPolicy.HYBRID.toString()) == 0) {
@@ -82,6 +88,8 @@ public class CLI {
       } else {
         throw new IllegalArgumentException("Node selection policy is not supported");
       }
+
+      annealingMethod = AnnealingMethod.valueOf(ANNEALING.toUpperCase().trim());
 
     } catch (Exception e) {
       logger.error(e.getMessage());
@@ -100,7 +108,8 @@ public class CLI {
     }
 
     return new Config().setRandNeighborsSampleSize(randNeighborsSampleSize)
-            .setDelta(DELTA)
+            .setAnnealingSpeed(ANNEALINGSPEED)
+            .setAnnealingMethod(annealingMethod)
             .setNumPartitions(NUM_PARTITIONS)
             .setUniformRandSampleSize(UNIFORM_RAND_SAMPLE_SIZE)
             .setRounds(ROUNDS)

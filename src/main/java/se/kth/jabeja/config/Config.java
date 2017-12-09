@@ -1,11 +1,14 @@
 package se.kth.jabeja.config;
 
+import se.kth.jabeja.annealing.AnnealingMethod;
+
 public class Config {
   private Integer numPartitions;
   private Integer rounds;
   private Integer randomNeighborsSampleSize;
   private Float temperature;
-  private Float delta;
+  private Float annealingSpeed;
+  private AnnealingMethod annealingMethod;
   private Integer seed;
   private Integer uniformRandomSampleSize;
   private String graphFile;
@@ -59,8 +62,13 @@ public class Config {
     return this;
   }
 
-  public Config setDelta(Float delta) {
-    this.delta = delta;
+  public Config setAnnealingSpeed(Float annealingSpeed) {
+    this.annealingSpeed = annealingSpeed;
+    return this;
+  }
+
+  public Config setAnnealingMethod(AnnealingMethod annealingMethod) {
+    this.annealingMethod = annealingMethod;
     return this;
   }
 
@@ -102,11 +110,11 @@ public class Config {
     return temperature;
   }
 
-  public Float getDelta() {
-    if (delta == null) {
+  public Float getAnnealingSpeed() {
+    if (annealingSpeed == null) {
       throw new NullPointerException("Delta is not set");
     }
-    return delta;
+    return annealingSpeed;
   }
 
   public Integer getSeed() {
@@ -162,4 +170,7 @@ public class Config {
     return new Config();
   }
 
+  public AnnealingMethod getAnnealingMethod() {
+    return annealingMethod;
+  }
 }
