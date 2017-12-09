@@ -4,3 +4,4 @@
 .gitignore
 /output
 graph.png
+.DS_Store

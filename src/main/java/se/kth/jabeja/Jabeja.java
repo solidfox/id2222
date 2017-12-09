@@ -17,7 +17,7 @@ public class Jabeja {
   private final List<Integer> nodeIds;
   private int numberOfSwaps;
   private int round;
-  private float T;
+  private float temperature;
   private boolean resultFileCreated = false;
 
   //-------------------------------------------------------------------
@@ -27,13 +27,14 @@ public class Jabeja {
     this.round = 0;
     this.numberOfSwaps = 0;
     this.config = config;
-    this.T = config.getTemperature();
+    this.temperature = config.getTemperature();
   }
 
 
   //-------------------------------------------------------------------
   public void startJabeja() throws IOException {
     for (round = 0; round < config.getRounds(); round++) {
+      numberOfSwaps = 0;
       for (int id : entireGraph.keySet()) {
         sampleAndSwap(id);
       }
@@ -50,10 +51,10 @@ public class Jabeja {
    */
   private void saCoolDown(){
     // TODO for second task
-    if (T > 1)
-      T -= config.getDelta();
-    if (T < 1)
-      T = 1;
+    if (temperature > 1)
+      temperature -= config.getDelta();
+    if (temperature < 1)
+      temperature = 1;
   }
 
   /**
@@ -61,44 +62,59 @@ public class Jabeja {
    * @param nodeId
    */
   private void sampleAndSwap(int nodeId) {
-    Node partner = null;
+    Optional<Node> partner = Optional.empty();
     Node nodep = entireGraph.get(nodeId);
 
     if (config.getNodeSelectionPolicy() == NodeSelectionPolicy.HYBRID
             || config.getNodeSelectionPolicy() == NodeSelectionPolicy.LOCAL) {
       // swap with random neighbors
-      // TODO
+      Integer[] neighbors = getNeighbors(nodep);
+      partner = findPartner(nodeId, neighbors);
     }
 
     if (config.getNodeSelectionPolicy() == NodeSelectionPolicy.HYBRID
             || config.getNodeSelectionPolicy() == NodeSelectionPolicy.RANDOM) {
       // if local policy fails then randomly sample the entire graph
-      // TODO
+      Integer[] sample = getSample(nodeId);
+      partner = findPartner(nodeId, sample);
     }
 
     // swap the colors
-    // TODO
+    if (partner.isPresent()) {
+      int partnerColor = partner.get().getColor();
+      partner.get().setColor(nodep.getColor());
+      nodep.setColor(partnerColor);
+      numberOfSwaps++;
+    }
   }
 
-  public Node findPartner(int nodeId, Integer[] nodes){
+  public Optional<Node> findPartner(int nodeId, Integer[] nodes){
 
     Node nodep = entireGraph.get(nodeId);
 
-    Node bestPartner = null;
+    Optional<Node> bestPartner = Optional.empty();
     double highestBenefit = 0;
 
-    // TODO
+    for (int i = 0; i < nodes.length; i++) {
+      Node partnerNode = entireGraph.get(nodes[i]);
+      int currentBenefit = getBenefit(nodep) + getBenefit(partnerNode);
+      int swappedBenefit = getBenefit(nodep, partnerNode.getColor()) + getBenefit(partnerNode, nodep.getColor());
+      if (swappedBenefit > highestBenefit && swappedBenefit * temperature > currentBenefit) {
+        bestPartner = Optional.of(partnerNode);
+        highestBenefit = swappedBenefit;
+      }
+    }
 
     return bestPartner;
   }
 
   /**
-   * The the degreee on the node based on color
+   * The the benefit on the node based on color
    * @param node
    * @param colorId
    * @return how many neighbors of the node have color == colorId
    */
-  private int getDegree(Node node, int colorId){
+  private int getBenefit(Node node, int colorId){
     int degree = 0;
     for(int neighborId : node.getNeighbours()){
       Node neighbor = entireGraph.get(neighborId);
@@ -107,6 +123,15 @@ public class Jabeja {
       }
     }
     return degree;
+  }
+
+  /**
+   * The benefit based on node's own color.
+   * @param node
+   * @return how many neighbors of node have same color as node.
+   */
+  private int getBenefit(Node node) {
+    return getBenefit(node, node.getColor());
   }
 
   /**
@@ -120,15 +145,12 @@ public class Jabeja {
     int size = entireGraph.size();
     ArrayList<Integer> rndIds = new ArrayList<Integer>();
 
-    while (true) {
+    while (count > 0) {
       rndId = nodeIds.get(RandNoGenerator.nextInt(size));
       if (rndId != currentNodeId && !rndIds.contains(rndId)) {
         rndIds.add(rndId);
         count--;
       }
-
-      if (count == 0)
-        break;
     }
 
     Integer[] ids = new Integer[rndIds.size()];
@@ -222,7 +244,7 @@ public class Jabeja {
             inputFile.getName() + "_" +
             "NS" + "_" + config.getNodeSelectionPolicy() + "_" +
             "GICP" + "_" + config.getGraphInitialColorPolicy() + "_" +
-            "T" + "_" + config.getTemperature() + "_" +
+            "temperature" + "_" + config.getTemperature() + "_" +
             "D" + "_" + config.getDelta() + "_" +
             "RNSS" + "_" + config.getRandomNeighborSampleSize() + "_" +
             "URSS" + "_" + config.getUniformRandomSampleSize() + "_" +
