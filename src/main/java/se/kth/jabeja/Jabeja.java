@@ -122,8 +122,9 @@ public class Jabeja {
 
     for (int i = 0; i < nodes.length; i++) {
       Node partnerNode = entireGraph.get(nodes[i]);
-      int currentBenefit = getBenefit(nodep) + getBenefit(partnerNode);
-      int swappedBenefit = getBenefit(nodep, partnerNode.getColor()) + getBenefit(partnerNode, nodep.getColor());
+      double possibleBenefit = (double) (nodep.getDegree() + partnerNode.getDegree());
+      double currentBenefit = (getBenefit(nodep) + getBenefit(partnerNode)) / possibleBenefit;
+      double swappedBenefit = (getBenefit(nodep, partnerNode.getColor()) + getBenefit(partnerNode, nodep.getColor())) / possibleBenefit;
       if (swappedBenefit > highestBenefit && annealingMethod.accept(currentBenefit, swappedBenefit)) {
         bestPartner = Optional.of(partnerNode);
         highestBenefit = swappedBenefit;
@@ -288,6 +289,7 @@ public class Jabeja {
             File.separator +
             inputFile.getName() + "_" +
             "ANNEAL" + "_" + config.getAnnealingMethod() + "_" +
+            "NORMALIZED" + "_" +
             "NS" + "_" + config.getNodeSelectionPolicy() + "_" +
             "GICP" + "_" + config.getGraphInitialColorPolicy() + "_" +
             "temperature" + "_" + config.getTemperature() + "_" +

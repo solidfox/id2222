@@ -15,9 +15,10 @@ public class ExponentialAnnealing implements AnnealingStrategy {
     }
 
     @Override
-    public boolean accept(int oldBenefit, int newBenefit) {
+    public boolean accept(double oldBenefit, double newBenefit) {
         if (oldBenefit == newBenefit) { return false; }
         double p = Math.exp((newBenefit-oldBenefit)/temperature);
+//        System.out.println(newBenefit + " " + oldBenefit + " " + p);
         return p > Math.random();
     }
 

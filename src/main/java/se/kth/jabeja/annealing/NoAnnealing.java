@@ -7,7 +7,7 @@ public class NoAnnealing implements AnnealingStrategy {
     }
 
     @Override
-    public boolean accept(int oldBenefit, int newBenefit) {
+    public boolean accept(double oldBenefit, double newBenefit) {
         return newBenefit > oldBenefit;
     }
 
