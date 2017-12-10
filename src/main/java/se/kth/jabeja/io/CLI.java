@@ -32,12 +32,15 @@ public class CLI {
   @Option(name = "-temp", usage = "Simulated annealing temperature.")
   private float TEMPERATURE = 2;
 
-  @Option(name = "-annealing-speed", usage = "Simulated annealing speed.")
-  private float ANNEALINGSPEED = (float) 0.003;
+  @Option(name = "-annealingSpeed", usage = "Simulated annealing speed.")
+  private float ANNEALING_SPEED = (float) 0.003;
 
   @Option(name = "-annealing", usage = "Simulated annealing method.")
   private String ANNEALING = "LINEAR";
   private AnnealingMethod annealingMethod = AnnealingMethod.LINEAR;
+
+  @Option(name = "-cooldownRounds", usage = "Additional rounds without annealing to let the algorithm find the current local minima.")
+  private int COOLDOWN = 30;
 
   @Option(name = "-seed", usage = "Seed.")
   private int SEED = 0;
@@ -108,8 +111,9 @@ public class CLI {
     }
 
     return new Config().setRandNeighborsSampleSize(randNeighborsSampleSize)
-            .setAnnealingSpeed(ANNEALINGSPEED)
+            .setAnnealingSpeed(ANNEALING_SPEED)
             .setAnnealingMethod(annealingMethod)
+            .setCooldownRounds(COOLDOWN)
             .setNumPartitions(NUM_PARTITIONS)
             .setUniformRandSampleSize(UNIFORM_RAND_SAMPLE_SIZE)
             .setRounds(ROUNDS)

@@ -9,6 +9,8 @@ import se.kth.jabeja.rand.RandNoGenerator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 
 public class Main {
@@ -35,6 +37,8 @@ public class Main {
 
         //read the input graph
         HashMap<Integer, Node> graph = readGraph();
+
+//        System.out.println(graph.values().stream().map(node -> node.getDegree()).collect(Collectors.averagingInt(Integer::intValue)));
 
         //start JaBeJa
         startJabeja(graph);

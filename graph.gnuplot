@@ -18,6 +18,7 @@ set yrange [0:]
 
 set ylabel "Edge Cut" 
 set xlabel "Rounds" 
+set grid
 plot filename using 1:2 with l ls 1 title "Edge-Cut"
 set ylabel "Swaps" 
 set xlabel "Rounds" 

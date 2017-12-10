@@ -9,6 +9,7 @@ public class Config {
   private Float temperature;
   private Float annealingSpeed;
   private AnnealingMethod annealingMethod;
+  private int CooldownRounds;
   private Integer seed;
   private Integer uniformRandomSampleSize;
   private String graphFile;
@@ -172,5 +173,14 @@ public class Config {
 
   public AnnealingMethod getAnnealingMethod() {
     return annealingMethod;
+  }
+
+  public int getCooldownRounds() {
+    return CooldownRounds;
+  }
+
+  public Config setCooldownRounds(int cooldownRounds) {
+    CooldownRounds = cooldownRounds;
+    return this;
   }
 }
